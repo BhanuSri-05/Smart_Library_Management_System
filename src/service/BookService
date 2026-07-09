@@ -1,0 +1,63 @@
+package service;
+
+import dao.BookDAO;
+import exception.BookNotFoundException;
+import model.Book;
+
+import java.util.List;
+
+public class BookService {
+
+    private final BookDAO bookDAO = new BookDAO();
+
+
+    // Add Book
+    public boolean addBook(Book book) {
+
+        return bookDAO.addBook(book);
+    }
+
+
+    // Get All Books
+    public List<Book> getAllBooks() {
+
+        return bookDAO.viewAllBooks();
+    }
+
+
+    // Search Book By ID
+    public Book getBookById(int id) throws BookNotFoundException {
+
+        Book book = bookDAO.searchBookById(id);
+
+        if (book == null) {
+            throw new BookNotFoundException("Book Not Found.");
+        }
+
+        return book;
+    }
+
+
+    // Update Book
+    public boolean updateBook(Book book) throws BookNotFoundException {
+
+        if (book == null) {
+            throw new BookNotFoundException("Book Not Found.");
+        }
+
+        return bookDAO.updateBook(book);
+    }
+
+
+    // Delete Book
+    public boolean deleteBook(int id) throws BookNotFoundException {
+
+        Book book = bookDAO.searchBookById(id);
+
+        if (book == null) {
+            throw new BookNotFoundException("Book Not Found.");
+        }
+
+        return bookDAO.deleteBook(id);
+    }
+}
