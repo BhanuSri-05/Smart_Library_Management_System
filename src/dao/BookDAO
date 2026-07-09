@@ -1,0 +1,175 @@
+package dao;
+
+import database.DBConnection;
+import model.Book;
+import util.LoggerUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BookDAO {
+    public boolean addBook(Book book) {
+
+        String sql = "INSERT INTO books(title, author, category, quantity, available) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, book.getTitle());
+            ps.setString(2, book.getAuthor());
+            ps.setString(3, book.getCategory());
+            ps.setInt(4, book.getQuantity());
+            ps.setInt(5, book.getAvailable());
+
+            int rows = ps.executeUpdate();
+
+            return rows > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+            return false;
+        }
+    }
+    public List<Book> viewAllBooks() {
+
+        List<Book> books = new ArrayList<>();
+
+        String sql = "SELECT * FROM books";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Book book = new Book();
+
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setAvailable(rs.getInt("available"));
+
+                books.add(book);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return books;
+    }
+    public Book searchBookById(int bookId) {
+
+        String sql = "SELECT * FROM books WHERE book_id = ?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, bookId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                Book book = new Book();
+
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setAvailable(rs.getInt("available"));
+
+                return book;
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return null;
+    }
+    public boolean updateBook(Book book) {
+
+        String sql = "UPDATE books SET title=?, author=?, category=?, quantity=?, available=? WHERE book_id=?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, book.getTitle());
+            ps.setString(2, book.getAuthor());
+            ps.setString(3, book.getCategory());
+            ps.setInt(4, book.getQuantity());
+            ps.setInt(5, book.getAvailable());
+            ps.setInt(6, book.getBookId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return false;
+    }
+    public boolean deleteBook(int bookId) {
+
+        String sql = "DELETE FROM books WHERE book_id=?";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, bookId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return false;
+    }
+
+    public boolean decreaseAvailableBook(int bookId) {
+
+        String sql = "UPDATE books SET available = available - 1 WHERE book_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, bookId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return false;
+    }
+
+    public boolean increaseAvailableBook(int bookId) {
+
+        String sql = "UPDATE books SET available = available + 1 WHERE book_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, bookId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return false;
+    }
+
+
+}
