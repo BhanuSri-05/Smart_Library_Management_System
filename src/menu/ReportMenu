@@ -1,0 +1,236 @@
+package menu;
+
+import model.Book;
+import model.Issue;
+import service.ReportService;
+
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
+
+public class ReportMenu {
+
+    private final Scanner sc = new Scanner(System.in);
+    private final ReportService reportService = new ReportService();
+
+    public void showMenu() {
+
+        while (true) {
+
+            System.out.println("\n========== REPORTS ==========");
+            System.out.println("1. View All Books");
+            System.out.println("2. Available Books");
+            System.out.println("3. Issued Books");
+            System.out.println("4. Returned Books");
+            System.out.println("5. Overdue Books");
+            System.out.println("6. Fine Collection");
+            System.out.println("7. Dashboard Summary");
+            System.out.println("8. Back");
+            System.out.print("Enter Choice: ");
+
+            int choice;
+
+            try {
+
+                choice = sc.nextInt();
+                sc.nextLine();
+
+            } catch (InputMismatchException e) {
+
+                System.out.println("Invalid input! Enter numbers only.");
+                sc.nextLine();
+                continue;
+            }
+
+            switch (choice) {
+
+                case 1:
+
+                    List<Book> books = reportService.viewAllBooks();
+
+                    if (books.isEmpty()) {
+
+                        System.out.println("No Books Found.");
+
+                    } else {
+
+                        System.out.println("\n---------------------------------------------------------------------------------------");
+
+                        System.out.printf("%-5s %-25s %-20s %-20s %-8s %-10s%n",
+                                "ID", "Title", "Author", "Category", "Qty", "Available");
+
+                        System.out.println("---------------------------------------------------------------------------------------");
+
+                        for (Book b : books) {
+
+                            System.out.printf("%-5d %-25s %-20s %-20s %-8d %-10d%n",
+                                    b.getBookId(),
+                                    b.getTitle(),
+                                    b.getAuthor(),
+                                    b.getCategory(),
+                                    b.getQuantity(),
+                                    b.getAvailable());
+                        }
+                    }
+
+                    break;
+
+                case 2:
+
+                    List<Book> availableBooks = reportService.getAvailableBooks();
+
+                    if (availableBooks.isEmpty()) {
+
+                        System.out.println("No Available Books.");
+
+                    } else {
+
+                        System.out.println("\n================ AVAILABLE BOOKS ================");
+
+                        System.out.printf("%-5s %-25s %-20s %-20s %-8s %-10s%n",
+                                "ID", "Title", "Author", "Category", "Qty", "Available");
+
+                        System.out.println("---------------------------------------------------------------------------------------");
+
+                        for (Book b : availableBooks) {
+
+                            System.out.printf("%-5d %-25s %-20s %-20s %-8d %-10d%n",
+                                    b.getBookId(),
+                                    b.getTitle(),
+                                    b.getAuthor(),
+                                    b.getCategory(),
+                                    b.getQuantity(),
+                                    b.getAvailable());
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                    List<Issue> issuedBooks = reportService.getIssuedBooks();
+
+                    if (issuedBooks.isEmpty()) {
+
+                        System.out.println("No Issued Books.");
+
+                    } else {
+
+                        System.out.println("\n================ ISSUED BOOKS ================");
+
+                        System.out.printf("%-8s %-8s %-10s %-15s %-12s %-10s%n",
+                                "IssueID", "BookID", "StudentID",
+                                "Issue Date", "Fine", "Status");
+
+                        System.out.println("---------------------------------------------------------------------");
+
+                        for (Issue issue : issuedBooks) {
+
+                            System.out.printf("%-8d %-8d %-10d %-15s %-12.2f %-10s%n",
+                                    issue.getIssueId(),
+                                    issue.getBookId(),
+                                    issue.getStudentId(),
+                                    issue.getIssueDate(),
+                                    issue.getFine(),
+                                    issue.getStatus());
+                        }
+                    }
+
+                    break;
+
+                case 4:
+
+                    List<Issue> returnedBooks = reportService.getReturnedBooks();
+
+                    if (returnedBooks.isEmpty()) {
+
+                        System.out.println("No Returned Books.");
+
+                    } else {
+
+                        System.out.println("\n================ RETURNED BOOKS ================");
+
+                        System.out.printf("%-8s %-8s %-10s %-15s %-15s %-12s%n",
+                                "IssueID", "BookID", "StudentID",
+                                "Return Date", "Fine", "Status");
+
+                        System.out.println("--------------------------------------------------------------------------");
+
+                        for (Issue issue : returnedBooks) {
+
+                            System.out.printf("%-8d %-8d %-10d %-15s %-15.2f %-12s%n",
+                                    issue.getIssueId(),
+                                    issue.getBookId(),
+                                    issue.getStudentId(),
+                                    issue.getReturnDate(),
+                                    issue.getFine(),
+                                    issue.getStatus());
+                        }
+                    }
+
+                    break;
+
+                case 5:
+
+                    List<Issue> overdueBooks = reportService.getOverdueBooks();
+
+                    if (overdueBooks.isEmpty()) {
+
+                        System.out.println("No Overdue Books.");
+
+                    } else {
+
+                        System.out.println("\n================ OVERDUE BOOKS ================");
+
+                        System.out.printf("%-8s %-8s %-10s %-15s %-10s%n",
+                                "IssueID", "BookID", "StudentID",
+                                "Issue Date", "Status");
+
+                        System.out.println("--------------------------------------------------------------");
+
+                        for (Issue issue : overdueBooks) {
+
+                            System.out.printf("%-8d %-8d %-10d %-15s %-10s%n",
+                                    issue.getIssueId(),
+                                    issue.getBookId(),
+                                    issue.getStudentId(),
+                                    issue.getIssueDate(),
+                                    issue.getStatus());
+                        }
+                    }
+
+                    break;
+
+                case 6:
+
+                    double totalFine = reportService.getTotalFineCollection();
+
+                    System.out.println("\n========== FINE COLLECTION ==========");
+                    System.out.printf("Total Fine Collected : ₹%.2f%n", totalFine);
+                    System.out.println("=====================================");
+
+                    break;
+
+                case 7:
+
+                    System.out.println("\n========== LIBRARY DASHBOARD ==========");
+
+                    System.out.println("Total Books            : " + reportService.getTotalBooks());
+                    System.out.println("Total Students         : " + reportService.getTotalStudents());
+                    System.out.println("Books Currently Issued : " + reportService.getTotalIssuedBooks());
+                    System.out.println("Books Returned         : " + reportService.getTotalReturnedBooks());
+                    System.out.println("Available Book Copies  : " + reportService.getAvailableBookCopies());
+
+                    System.out.println("=======================================");
+
+                    break;
+
+                case 8:
+                    return;
+
+                default:
+                    System.out.println("Invalid Choice!");
+            }
+        }
+    }
+}
