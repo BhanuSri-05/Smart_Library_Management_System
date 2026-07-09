@@ -1,0 +1,161 @@
+package dao;
+
+import database.DBConnection;
+import model.Issue;
+import util.LoggerUtil;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class IssueDAO {
+
+    // Issue Book
+    public boolean issueBook(Issue issue) {
+
+        String sql = "INSERT INTO issued_books (book_id, student_id, issue_date, return_date, fine, status) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, issue.getBookId());
+            ps.setInt(2, issue.getStudentId());
+            ps.setDate(3, issue.getIssueDate());
+            ps.setDate(4, issue.getReturnDate());
+            ps.setDouble(5, issue.getFine());
+            ps.setString(6, issue.getStatus());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return false;
+    }
+
+    // View All Issued Books
+    public List<Issue> viewIssuedBooks() {
+
+        List<Issue> issues = new ArrayList<>();
+
+        String sql = "SELECT * FROM issued_books";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Issue issue = new Issue();
+
+                issue.setIssueId(rs.getInt("issue_id"));
+                issue.setBookId(rs.getInt("book_id"));
+                issue.setStudentId(rs.getInt("student_id"));
+                issue.setIssueDate(rs.getDate("issue_date"));
+                issue.setReturnDate(rs.getDate("return_date"));
+                issue.setFine(rs.getDouble("fine"));
+                issue.setStatus(rs.getString("status"));
+
+                issues.add(issue);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return issues;
+    }
+
+    // Search Issue
+    public Issue searchIssue(int issueId) {
+
+        String sql = "SELECT * FROM issued_books WHERE issue_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, issueId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    Issue issue = new Issue();
+
+                    issue.setIssueId(rs.getInt("issue_id"));
+                    issue.setBookId(rs.getInt("book_id"));
+                    issue.setStudentId(rs.getInt("student_id"));
+                    issue.setIssueDate(rs.getDate("issue_date"));
+                    issue.setReturnDate(rs.getDate("return_date"));
+                    issue.setFine(rs.getDouble("fine"));
+                    issue.setStatus(rs.getString("status"));
+
+                    return issue;
+                }
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return null;
+    }
+
+    // Get Active Issue
+    public Issue getActiveIssue(int issueId) {
+
+        String sql = "SELECT * FROM issued_books WHERE issue_id = ? AND status = 'Issued'";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, issueId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    Issue issue = new Issue();
+
+                    issue.setIssueId(rs.getInt("issue_id"));
+                    issue.setBookId(rs.getInt("book_id"));
+                    issue.setStudentId(rs.getInt("student_id"));
+                    issue.setIssueDate(rs.getDate("issue_date"));
+                    issue.setReturnDate(rs.getDate("return_date"));
+                    issue.setFine(rs.getDouble("fine"));
+                    issue.setStatus(rs.getString("status"));
+
+                    return issue;
+                }
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return null;
+    }
+
+    // Return Book
+    public boolean returnBook(int issueId, Date returnDate, double fine) {
+
+        String sql = "UPDATE issued_books SET return_date = ?, fine = ?, status = 'Returned' WHERE issue_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDate(1, returnDate);
+            ps.setDouble(2, fine);
+            ps.setInt(3, issueId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+
+        }
+
+        return false;
+    }
+}
