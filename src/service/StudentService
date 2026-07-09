@@ -1,0 +1,65 @@
+package service;
+
+import dao.StudentDAO;
+import exception.StudentNotFoundException;
+import model.Student;
+
+import java.util.List;
+
+public class StudentService {
+
+    private final StudentDAO studentDAO = new StudentDAO();
+
+
+    // Add Student
+    public boolean addStudent(Student student) {
+
+        return studentDAO.addStudent(student);
+    }
+
+
+    // Get All Students
+    public List<Student> getAllStudents() {
+
+        return studentDAO.viewAllStudents();
+    }
+
+
+    // Search Student By ID
+    public Student getStudentById(int id) throws StudentNotFoundException {
+
+        Student student = studentDAO.searchStudentById(id);
+
+        if (student == null) {
+            throw new StudentNotFoundException("Student Not Found.");
+        }
+
+        return student;
+    }
+
+
+    // Update Student
+    public boolean updateStudent(Student student)
+            throws StudentNotFoundException {
+
+        if (student == null) {
+            throw new StudentNotFoundException("Student Not Found.");
+        }
+
+        return studentDAO.updateStudent(student);
+    }
+
+
+    // Delete Student
+    public boolean deleteStudent(int id)
+            throws StudentNotFoundException {
+
+        Student student = studentDAO.searchStudentById(id);
+
+        if (student == null) {
+            throw new StudentNotFoundException("Student Not Found.");
+        }
+
+        return studentDAO.deleteStudent(id);
+    }
+}
