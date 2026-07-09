@@ -1,0 +1,190 @@
+package service;
+
+import dao.BookDAO;
+import dao.IssueDAO;
+import dao.StudentDAO;
+
+import exception.BookNotAvailableException;
+import exception.BookNotFoundException;
+import exception.StudentNotFoundException;
+
+import model.Book;
+import model.Issue;
+import model.Student;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+public class IssueService {
+
+    private static final int LOAN_DAYS = 14;
+    private static final double FINE_PER_DAY = 5.0;
+
+    private final BookDAO bookDAO = new BookDAO();
+    private final StudentDAO studentDAO = new StudentDAO();
+    private final IssueDAO issueDAO = new IssueDAO();
+
+
+    // Issue Book
+    public String issueBook(int studentId, int bookId)
+            throws StudentNotFoundException,
+            BookNotFoundException,
+            BookNotAvailableException {
+
+
+        // Check Student
+        Student student = studentDAO.searchStudentById(studentId);
+
+        if (student == null) {
+
+            throw new StudentNotFoundException(
+                    "Student Not Found."
+            );
+        }
+
+
+        // Check Book
+        Book book = bookDAO.searchBookById(bookId);
+
+        if (book == null) {
+
+            throw new BookNotFoundException(
+                    "Book Not Found."
+            );
+        }
+
+
+        // Check Availability
+        if (book.getAvailable() <= 0) {
+
+            throw new BookNotAvailableException(
+                    "Book Not Available."
+            );
+        }
+
+
+
+        // Create Issue Record
+        Issue issue = new Issue();
+
+        issue.setStudentId(studentId);
+        issue.setBookId(bookId);
+
+
+        Date issueDate =
+                new Date(System.currentTimeMillis());
+
+        issue.setIssueDate(issueDate);
+
+
+
+        Date returnDate =
+                new Date(
+                        System.currentTimeMillis()
+                                + (LOAN_DAYS * 24L * 60 * 60 * 1000)
+                );
+
+
+        issue.setReturnDate(returnDate);
+        issue.setFine(0);
+        issue.setStatus("Issued");
+
+
+
+        // Save Issue
+        if (!issueDAO.issueBook(issue)) {
+
+            return "Issue Failed.";
+        }
+
+
+
+        // Reduce Available Books
+        bookDAO.decreaseAvailableBook(bookId);
+
+
+        return "Book Issued Successfully.";
+    }
+
+
+
+    // Calculate Fine
+    public double calculateFine(Issue issue) {
+
+
+        LocalDate issueDate =
+                issue.getIssueDate().toLocalDate();
+
+
+        LocalDate today =
+                LocalDate.now();
+
+
+
+        long days =
+                ChronoUnit.DAYS.between(issueDate, today);
+
+
+
+        if (days <= LOAN_DAYS) {
+
+            return 0;
+        }
+
+
+        return (days - LOAN_DAYS) * FINE_PER_DAY;
+    }
+
+
+
+    // Return Book
+    public String returnBook(int issueId)
+            throws BookNotFoundException {
+
+
+        // Find Active Issue
+        Issue issue =
+                issueDAO.getActiveIssue(issueId);
+
+
+
+        if (issue == null) {
+
+            throw new BookNotFoundException(
+                    "No Active Issue Found."
+            );
+        }
+
+
+
+        // Calculate Fine
+        double fine =
+                calculateFine(issue);
+
+
+
+        Date returnDate =
+                new Date(System.currentTimeMillis());
+
+
+
+        // Update Issue Record
+        if (!issueDAO.returnBook(issueId, returnDate, fine)) {
+
+            return "Book Return Failed.";
+        }
+
+
+
+        // Increase Available Count
+        if (!bookDAO.increaseAvailableBook(issue.getBookId())) {
+
+            return "Book Returned, but failed to update available count.";
+        }
+
+
+
+        return "Book Returned Successfully.\nFine: ₹" + fine;
+    }
+}
