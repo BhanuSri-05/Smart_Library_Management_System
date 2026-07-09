@@ -1,0 +1,64 @@
+package service;
+
+import dao.ReportDAO;
+import model.Book;
+import model.Issue;
+
+import java.util.List;
+
+public class ReportService {
+
+    private final ReportDAO reportDAO = new ReportDAO();
+
+    // Dashboard Summary
+
+    public int getTotalBooks() {
+        return reportDAO.getTotalBooks();
+    }
+
+    public int getTotalStudents() {
+        return reportDAO.getTotalStudents();
+    }
+
+    public int getTotalIssuedBooks() {
+        return reportDAO.getTotalIssuedBooks();
+    }
+
+    public int getTotalReturnedBooks() {
+        return reportDAO.getTotalReturnedBooks();
+    }
+
+    public int getAvailableBookCopies() {
+        return reportDAO.getAvailableBookCopies();
+    }
+
+    // Book Reports
+
+    public List<Book> viewAllBooks() {
+        return reportDAO.viewAllBooks();
+    }
+
+    public List<Book> getAvailableBooks() {
+        return reportDAO.getAvailableBooks();
+    }
+
+    // Issue Reports
+
+    public List<Issue> getIssuedBooks() {
+        return reportDAO.getIssuedBooks();
+    }
+
+    public List<Issue> getReturnedBooks() {
+        return reportDAO.getReturnedBooks();
+    }
+
+    public List<Issue> getOverdueBooks() {
+        return reportDAO.getOverdueBooks();
+    }
+
+    // Fine Report
+
+    public double getTotalFineCollection() {
+        return reportDAO.getTotalFineCollection();
+    }
+}
