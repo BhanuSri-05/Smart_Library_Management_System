@@ -1,0 +1,459 @@
+package menu;
+
+import exception.StudentNotFoundException;
+import model.Student;
+import service.StudentService;
+import util.ValidationUtil;
+
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
+
+public class StudentMenu {
+
+    private final Scanner sc = new Scanner(System.in);
+    private final StudentService service = new StudentService();
+
+
+    public void showMenu() {
+
+        while (true) {
+
+            System.out.println("\n========== STUDENT MANAGEMENT ==========");
+            System.out.println("1. Add Student");
+            System.out.println("2. View All Students");
+            System.out.println("3. Search Student");
+            System.out.println("4. Update Student");
+            System.out.println("5. Delete Student");
+            System.out.println("6. Back");
+            System.out.print("Enter Choice: ");
+
+
+            int choice;
+
+            try {
+
+                choice = sc.nextInt();
+                sc.nextLine();
+
+            } catch (InputMismatchException e) {
+
+                System.out.println(
+                        "Invalid input! Enter numbers only."
+                );
+
+                sc.nextLine();
+                continue;
+            }
+
+
+
+            switch (choice) {
+
+                case 1:
+                    addStudent();
+                    break;
+
+                case 2:
+                    viewAllStudents();
+                    break;
+
+                case 3:
+                    searchStudent();
+                    break;
+
+                case 4:
+                    updateStudent();
+                    break;
+
+                case 5:
+                    deleteStudent();
+                    break;
+
+                case 6:
+                    return;
+
+                default:
+                    System.out.println(
+                            "Invalid Choice."
+                    );
+            }
+        }
+    }
+
+
+
+    private void addStudent() {
+
+        Student student = new Student();
+
+
+        String name;
+
+        while (true) {
+
+            System.out.print("Enter Name: ");
+            name = sc.nextLine();
+
+
+            if (ValidationUtil.isValidName(name)) {
+                break;
+            }
+
+
+            System.out.println(
+                    "Invalid Name! Minimum 3 characters required."
+            );
+        }
+
+
+        student.setName(name);
+
+
+
+        System.out.print("Enter Department: ");
+        student.setDepartment(sc.nextLine());
+
+
+
+        String phone;
+
+        while (true) {
+
+            System.out.print("Enter Phone: ");
+            phone = sc.nextLine();
+
+
+            if (ValidationUtil.isValidPhone(phone)) {
+                break;
+            }
+
+
+            System.out.println(
+                    "Invalid Phone! Enter 10 digits."
+            );
+        }
+
+
+        student.setPhone(phone);
+
+
+
+        String email;
+
+        while (true) {
+
+            System.out.print("Enter Email: ");
+            email = sc.nextLine();
+
+
+            if (ValidationUtil.isValidEmail(email)) {
+                break;
+            }
+
+
+            System.out.println(
+                    "Invalid Email."
+            );
+        }
+
+
+        student.setEmail(email);
+
+
+
+        if (service.addStudent(student)) {
+
+            System.out.println(
+                    "Student Added Successfully."
+            );
+
+        } else {
+
+            System.out.println(
+                    "Failed to Add Student."
+            );
+        }
+    }
+
+
+
+
+    private void viewAllStudents() {
+
+
+        List<Student> students =
+                service.getAllStudents();
+
+
+
+        if (students.isEmpty()) {
+
+            System.out.println(
+                    "No Students Found."
+            );
+
+            return;
+        }
+
+
+
+        System.out.println(
+                "\n----------------------------------------------------------------------------"
+        );
+
+
+        System.out.printf(
+                "%-5s %-20s %-20s %-15s %-25s%n",
+                "ID",
+                "Name",
+                "Department",
+                "Phone",
+                "Email"
+        );
+
+
+        System.out.println(
+                "----------------------------------------------------------------------------"
+        );
+
+
+
+        for (Student s : students) {
+
+            System.out.printf(
+                    "%-5d %-20s %-20s %-15s %-25s%n",
+                    s.getStudentId(),
+                    s.getName(),
+                    s.getDepartment(),
+                    s.getPhone(),
+                    s.getEmail()
+            );
+        }
+    }
+
+
+
+
+    private void searchStudent() {
+
+
+        int id = readStudentId();
+
+
+        try {
+
+            Student student =
+                    service.getStudentById(id);
+
+
+
+            System.out.println("\nStudent Details");
+            System.out.println("----------------------------");
+            System.out.println("ID         : " + student.getStudentId());
+            System.out.println("Name       : " + student.getName());
+            System.out.println("Department : " + student.getDepartment());
+            System.out.println("Phone      : " + student.getPhone());
+            System.out.println("Email      : " + student.getEmail());
+
+
+
+        } catch (StudentNotFoundException e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+        }
+    }
+
+
+
+
+    private void updateStudent() {
+
+
+        int id = readStudentId();
+
+
+
+        try {
+
+
+            Student student =
+                    service.getStudentById(id);
+
+
+
+            String name;
+
+
+            while (true) {
+
+                System.out.print("New Name: ");
+                name = sc.nextLine();
+
+
+                if (ValidationUtil.isValidName(name)) {
+                    break;
+                }
+
+
+                System.out.println(
+                        "Invalid Name."
+                );
+            }
+
+
+            student.setName(name);
+
+
+
+            System.out.print("New Department: ");
+            student.setDepartment(sc.nextLine());
+
+
+
+            String phone;
+
+
+            while (true) {
+
+                System.out.print("New Phone: ");
+                phone = sc.nextLine();
+
+
+                if (ValidationUtil.isValidPhone(phone)) {
+                    break;
+                }
+
+
+                System.out.println(
+                        "Invalid Phone."
+                );
+            }
+
+
+            student.setPhone(phone);
+
+
+
+            String email;
+
+
+            while (true) {
+
+                System.out.print("New Email: ");
+                email = sc.nextLine();
+
+
+                if (ValidationUtil.isValidEmail(email)) {
+                    break;
+                }
+
+
+                System.out.println(
+                        "Invalid Email."
+                );
+            }
+
+
+            student.setEmail(email);
+
+
+
+            if (service.updateStudent(student)) {
+
+                System.out.println(
+                        "Student Updated Successfully."
+                );
+            }
+
+
+
+        } catch (StudentNotFoundException e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+        }
+    }
+
+
+
+
+    private void deleteStudent() {
+
+
+        int id = readStudentId();
+
+
+        try {
+
+
+            if (service.deleteStudent(id)) {
+
+                System.out.println(
+                        "Student Deleted Successfully."
+                );
+            }
+
+
+        } catch (StudentNotFoundException e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+        }
+    }
+
+
+
+
+    private int readStudentId() {
+
+
+        int id;
+
+
+        while (true) {
+
+
+            System.out.print(
+                    "Enter Student ID: "
+            );
+
+
+            try {
+
+
+                id = sc.nextInt();
+                sc.nextLine();
+
+
+
+                if (ValidationUtil.isValidId(id)) {
+
+                    return id;
+                }
+
+
+
+                System.out.println(
+                        "Invalid Student ID."
+                );
+
+
+
+            } catch (InputMismatchException e) {
+
+
+                System.out.println(
+                        "Enter numeric ID only."
+                );
+
+
+                sc.nextLine();
+            }
+        }
+    }
+}
