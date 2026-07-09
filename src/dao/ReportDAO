@@ -1,0 +1,295 @@
+package dao;
+import database.DBConnection;
+import model.Book;
+import model.Issue;
+import util.LoggerUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ReportDAO {
+
+
+
+    public int getTotalBooks() {
+
+        String sql = "SELECT COUNT(*) FROM books";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+
+        }
+
+        return 0;
+    }
+
+    public int getTotalStudents() {
+
+        String sql = "SELECT COUNT(*) FROM students";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int getTotalIssuedBooks() {
+
+        String sql = "SELECT COUNT(*) FROM issued_books WHERE status = 'Issued'";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int getTotalReturnedBooks() {
+
+        String sql = "SELECT COUNT(*) FROM issued_books WHERE status = 'Returned'";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int getAvailableBookCopies() {
+
+        String sql = "SELECT COALESCE(SUM(available), 0) FROM books";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+
+        }
+
+        return 0;
+    }
+
+    public List<Book> viewAllBooks() {
+
+        List<Book> books = new ArrayList<>();
+
+        String sql = "SELECT * FROM books";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Book book = new Book();
+
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setAvailable(rs.getInt("available"));
+
+                books.add(book);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return books;
+    }
+
+    public List<Issue> getIssuedBooks() {
+
+        List<Issue> issues = new ArrayList<>();
+
+        String sql = "SELECT * FROM issued_books WHERE status = 'Issued'";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Issue issue = new Issue();
+
+                issue.setIssueId(rs.getInt("issue_id"));
+                issue.setBookId(rs.getInt("book_id"));
+                issue.setStudentId(rs.getInt("student_id"));
+                issue.setIssueDate(rs.getDate("issue_date"));
+                issue.setReturnDate(rs.getDate("return_date"));
+                issue.setFine(rs.getDouble("fine"));
+                issue.setStatus(rs.getString("status"));
+
+                issues.add(issue);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return issues;
+    }
+
+    public List<Issue> getOverdueBooks() {
+
+        List<Issue> issues = new ArrayList<>();
+
+        String sql = "SELECT * FROM issued_books " +
+                "WHERE status = 'Issued' " +
+                "AND issue_date < DATE_SUB(CURDATE(), INTERVAL 15 DAY)";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Issue issue = new Issue();
+
+                issue.setIssueId(rs.getInt("issue_id"));
+                issue.setBookId(rs.getInt("book_id"));
+                issue.setStudentId(rs.getInt("student_id"));
+                issue.setIssueDate(rs.getDate("issue_date"));
+                issue.setReturnDate(rs.getDate("return_date"));
+                issue.setFine(rs.getDouble("fine"));
+                issue.setStatus(rs.getString("status"));
+
+                issues.add(issue);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return issues;
+    }
+
+
+    public double getTotalFineCollection() {
+
+        String sql = "SELECT COALESCE(SUM(fine), 0) FROM issued_books";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public List<Book> getAvailableBooks() {
+
+        List<Book> books = new ArrayList<>();
+
+        String sql = "SELECT * FROM books WHERE available > 0";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Book book = new Book();
+
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setAvailable(rs.getInt("available"));
+
+                books.add(book);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return books;
+    }
+
+    public List<Issue> getReturnedBooks() {
+
+        List<Issue> issues = new ArrayList<>();
+
+        String sql = "SELECT * FROM issued_books WHERE status = 'Returned'";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Issue issue = new Issue();
+
+                issue.setIssueId(rs.getInt("issue_id"));
+                issue.setBookId(rs.getInt("book_id"));
+                issue.setStudentId(rs.getInt("student_id"));
+                issue.setIssueDate(rs.getDate("issue_date"));
+                issue.setReturnDate(rs.getDate("return_date"));
+                issue.setFine(rs.getDouble("fine"));
+                issue.setStatus(rs.getString("status"));
+
+                issues.add(issue);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return issues;
+    }
+
+
+
+}
