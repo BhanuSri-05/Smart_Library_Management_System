@@ -1,0 +1,136 @@
+package dao;
+
+import database.DBConnection;
+import model.Student;
+import util.LoggerUtil;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class StudentDAO {
+
+    public boolean addStudent(Student student){
+
+
+            String sql = "INSERT INTO students(name, department, phone, email) VALUES(?, ?, ?, ?)";
+
+            try (Connection con = DBConnection.getConnection();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
+
+                ps.setString(1, student.getName());
+                ps.setString(2, student.getDepartment());
+                ps.setString(3, student.getPhone());
+                ps.setString(4, student.getEmail());
+
+                return ps.executeUpdate() > 0;
+
+            } catch (SQLException e) {
+                LoggerUtil.getLogger().severe(e.getMessage());
+
+            }
+
+            return false;
+
+    }
+
+    public List<Student> viewAllStudents(){
+        List<Student> students = new ArrayList<>();
+
+        String sql = "SELECT * FROM students";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Student student = new Student();
+
+                student.setStudentId(rs.getInt("student_id"));
+                student.setName(rs.getString("name"));
+                student.setDepartment(rs.getString("department"));
+                student.setPhone(rs.getString("phone"));
+                student.setEmail(rs.getString("email"));
+
+                students.add(student);
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+
+        }
+
+        return students;
+    }
+
+    public Student searchStudentById(int studentId){
+        String sql = "SELECT * FROM students WHERE student_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, studentId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+
+                Student student = new Student();
+
+                student.setStudentId(rs.getInt("student_id"));
+                student.setName(rs.getString("name"));
+                student.setDepartment(rs.getString("department"));
+                student.setPhone(rs.getString("phone"));
+                student.setEmail(rs.getString("email"));
+
+                return student;
+            }
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+        }
+
+        return null;
+    }
+
+    public boolean updateStudent(Student student){
+        String sql = "UPDATE students SET name=?, department=?, phone=?, email=? WHERE student_id=?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, student.getName());
+            ps.setString(2, student.getDepartment());
+            ps.setString(3, student.getPhone());
+            ps.setString(4, student.getEmail());
+            ps.setInt(5, student.getStudentId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+
+        }
+
+        return false;
+    }
+
+    public boolean deleteStudent(int studentId){
+        String sql = "DELETE FROM students WHERE student_id = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, studentId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            LoggerUtil.getLogger().severe(e.getMessage());
+
+        }
+
+        return false;
+    }
+}
