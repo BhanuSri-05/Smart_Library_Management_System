@@ -1,0 +1,19 @@
+
+
+public class Main {
+
+    public static void main(String[] args) {
+
+       
+        LoginMenu loginMenu = new LoginMenu();
+
+        loginMenu.login();
+
+
+        MainMenu mainMenu = new MainMenu();
+        mainMenu.showMenu();
+
+
+
+    }
+}
