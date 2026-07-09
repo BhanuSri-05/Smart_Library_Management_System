@@ -1,0 +1,65 @@
+package menu;
+
+import java.util.Scanner;
+
+public class MainMenu {
+
+    private Scanner sc = new Scanner(System.in);
+
+    public void showMenu() {
+
+        int choice;
+
+        do {
+
+            System.out.println("\n========== SMART LIBRARY MANAGEMENT SYSTEM ==========");
+            System.out.println("1. Book Management");
+            System.out.println("2. Student Management");
+            System.out.println("3. Issue Book");
+            System.out.println("4. Return Book");
+            System.out.println("5. Reports");
+            System.out.println("6. Exit");
+
+            System.out.print("\nEnter Choice: ");
+
+            choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+                    BookMenu bookMenu = new BookMenu();
+                    bookMenu.showMenu();
+                    break;
+
+                case 2:
+                    StudentMenu studentMenu = new StudentMenu();
+                    studentMenu.showMenu();
+                    break;
+
+                case 3:
+                    IssueMenu issueMenu = new IssueMenu();
+                    issueMenu.showMenu();
+                    break;
+
+                case 4:
+                    ReturnMenu returnMenu = new ReturnMenu();
+                    returnMenu.showMenu();
+                    break;
+
+                case 5:
+                    ReportMenu reportMenu = new ReportMenu();
+                    reportMenu.showMenu();
+                    break;
+
+                case 6:
+                    System.out.println("Thank You!");
+                    break;
+
+                default:
+                    System.out.println("Invalid Choice!");
+            }
+
+        } while (choice != 6);
+    }
+
+}
