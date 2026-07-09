@@ -1,0 +1,429 @@
+package menu;
+
+import exception.BookNotFoundException;
+import model.Book;
+import service.BookService;
+import util.ValidationUtil;
+
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
+
+public class BookMenu {
+
+    private final Scanner sc = new Scanner(System.in);
+    private final BookService bookService = new BookService();
+
+
+    public void showMenu() {
+
+        while (true) {
+
+            System.out.println("\n========== BOOK MANAGEMENT ==========");
+            System.out.println("1. Add Book");
+            System.out.println("2. View All Books");
+            System.out.println("3. Search Book");
+            System.out.println("4. Update Book");
+            System.out.println("5. Delete Book");
+            System.out.println("6. Back");
+            System.out.print("Enter Choice: ");
+
+
+            int choice;
+
+            try {
+
+                choice = sc.nextInt();
+                sc.nextLine();
+
+            } catch (InputMismatchException e) {
+
+                System.out.println(
+                        "Invalid input. Enter numbers only."
+                );
+
+                sc.nextLine();
+                continue;
+            }
+
+
+
+            switch (choice) {
+
+
+                case 1:
+
+                    addBook();
+                    break;
+
+
+                case 2:
+
+                    viewBooks();
+                    break;
+
+
+                case 3:
+
+                    searchBook();
+                    break;
+
+
+                case 4:
+
+                    updateBook();
+                    break;
+
+
+                case 5:
+
+                    deleteBook();
+                    break;
+
+
+                case 6:
+
+                    return;
+
+
+                default:
+
+                    System.out.println(
+                            "Invalid Choice."
+                    );
+            }
+        }
+    }
+
+
+
+    private void addBook() {
+
+
+        System.out.print("Enter Book Title: ");
+        String title = sc.nextLine();
+
+
+        System.out.print("Enter Author: ");
+        String author = sc.nextLine();
+
+
+        System.out.print("Enter Category: ");
+        String category = sc.nextLine();
+
+
+
+        int quantity;
+
+
+        while (true) {
+
+            System.out.print("Enter Quantity: ");
+
+
+            try {
+
+                quantity = sc.nextInt();
+                sc.nextLine();
+
+
+                if (ValidationUtil.isValidQuantity(quantity)) {
+                    break;
+                }
+
+
+                System.out.println(
+                        "Invalid Quantity."
+                );
+
+
+            } catch (InputMismatchException e) {
+
+                System.out.println(
+                        "Enter valid number."
+                );
+
+                sc.nextLine();
+            }
+        }
+
+
+
+        Book book = new Book();
+
+        book.setTitle(title);
+        book.setAuthor(author);
+        book.setCategory(category);
+        book.setQuantity(quantity);
+        book.setAvailable(quantity);
+
+
+
+        if (bookService.addBook(book)) {
+
+            System.out.println(
+                    "Book Added Successfully."
+            );
+
+        } else {
+
+            System.out.println(
+                    "Failed to Add Book."
+            );
+        }
+    }
+
+
+
+    private void viewBooks() {
+
+
+        List<Book> books =
+                bookService.getAllBooks();
+
+
+
+        if (books.isEmpty()) {
+
+            System.out.println(
+                    "No Books Found."
+            );
+
+            return;
+        }
+
+
+
+        System.out.println(
+                "\n--------------------------------------------------------------------------------"
+        );
+
+
+        System.out.printf(
+                "%-5s %-25s %-20s %-20s %-8s %-10s%n",
+                "ID",
+                "Title",
+                "Author",
+                "Category",
+                "Qty",
+                "Available"
+        );
+
+
+        System.out.println(
+                "--------------------------------------------------------------------------------"
+        );
+
+
+
+        for (Book b : books) {
+
+            System.out.printf(
+                    "%-5d %-25s %-20s %-20s %-8d %-10d%n",
+                    b.getBookId(),
+                    b.getTitle(),
+                    b.getAuthor(),
+                    b.getCategory(),
+                    b.getQuantity(),
+                    b.getAvailable()
+            );
+        }
+    }
+
+
+
+    private void searchBook() {
+
+
+        int id = readBookId();
+
+
+        try {
+
+            Book book =
+                    bookService.getBookById(id);
+
+
+            System.out.println("\nBook Details");
+            System.out.println("----------------------");
+            System.out.println("ID        : " + book.getBookId());
+            System.out.println("Title     : " + book.getTitle());
+            System.out.println("Author    : " + book.getAuthor());
+            System.out.println("Category  : " + book.getCategory());
+            System.out.println("Quantity  : " + book.getQuantity());
+            System.out.println("Available : " + book.getAvailable());
+
+
+        } catch (BookNotFoundException e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+        }
+    }
+
+
+
+    private void updateBook() {
+
+
+        int id = readBookId();
+
+
+
+        try {
+
+            Book book =
+                    bookService.getBookById(id);
+
+
+
+            System.out.print("New Title: ");
+            book.setTitle(sc.nextLine());
+
+
+            System.out.print("New Author: ");
+            book.setAuthor(sc.nextLine());
+
+
+            System.out.print("New Category: ");
+            book.setCategory(sc.nextLine());
+
+
+
+            int quantity;
+
+
+            while (true) {
+
+                System.out.print("New Quantity: ");
+
+
+                try {
+
+                    quantity = sc.nextInt();
+                    sc.nextLine();
+
+
+                    if (ValidationUtil.isValidQuantity(quantity)) {
+                        break;
+                    }
+
+
+                    System.out.println(
+                            "Invalid Quantity."
+                    );
+
+
+                } catch (InputMismatchException e) {
+
+                    System.out.println(
+                            "Enter valid quantity."
+                    );
+
+                    sc.nextLine();
+                }
+            }
+
+
+
+            book.setQuantity(quantity);
+            book.setAvailable(quantity);
+
+
+
+            if (bookService.updateBook(book)) {
+
+                System.out.println(
+                        "Book Updated Successfully."
+                );
+            }
+
+
+
+        } catch (BookNotFoundException e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+        }
+    }
+
+
+
+
+    private void deleteBook() {
+
+
+        int id = readBookId();
+
+
+
+        try {
+
+            if (bookService.deleteBook(id)) {
+
+                System.out.println(
+                        "Book Deleted Successfully."
+                );
+            }
+
+
+        } catch (BookNotFoundException e) {
+
+            System.out.println(
+                    e.getMessage()
+            );
+        }
+    }
+
+
+
+
+    private int readBookId() {
+
+
+        int id;
+
+
+        while (true) {
+
+
+            System.out.print(
+                    "Enter Book ID: "
+            );
+
+
+            try {
+
+                id = sc.nextInt();
+                sc.nextLine();
+
+
+
+                if (ValidationUtil.isValidId(id)) {
+
+                    return id;
+                }
+
+
+
+                System.out.println(
+                        "Invalid Book ID."
+                );
+
+
+
+            } catch (InputMismatchException e) {
+
+
+                System.out.println(
+                        "Enter numeric ID only."
+                );
+
+
+                sc.nextLine();
+            }
+        }
+    }
+}
