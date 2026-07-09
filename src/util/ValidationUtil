@@ -1,0 +1,52 @@
+package util;
+
+public final class ValidationUtil {
+
+    // Prevent object creation
+    private ValidationUtil() {
+    }
+
+    // Validate Book Quantity
+    public static boolean isValidQuantity(int quantity) {
+        return quantity >= 0;
+    }
+
+    // Validate Student Name
+    public static boolean isValidName(String name) {
+
+        if (name == null) {
+            return false;
+        }
+
+        name = name.trim();
+
+        return name.length() >= 3;
+    }
+
+    // Validate Phone Number
+    public static boolean isValidPhone(String phone) {
+
+        if (phone == null) {
+            return false;
+        }
+
+        return phone.matches("\\d{10}");
+    }
+
+    // Validate Email
+    public static boolean isValidEmail(String email) {
+
+        if (email == null) {
+            return false;
+        }
+
+        email = email.trim();
+
+        return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    }
+
+    // Validate IDs
+    public static boolean isValidId(int id) {
+        return id > 0;
+    }
+}
