@@ -1,0 +1,81 @@
+package menu;
+
+import exception.BookNotAvailableException;
+import exception.BookNotFoundException;
+import exception.StudentNotFoundException;
+import service.IssueService;
+import util.ValidationUtil;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class IssueMenu {
+
+    private final Scanner sc = new Scanner(System.in);
+    private final IssueService issueService = new IssueService();
+
+    public void showMenu() {
+
+        System.out.println("\n========== ISSUE BOOK ==========");
+
+        int studentId;
+
+        while (true) {
+
+            System.out.print("Enter Student ID: ");
+
+            try {
+
+                studentId = sc.nextInt();
+                sc.nextLine();
+
+                if (ValidationUtil.isValidId(studentId)) {
+                    break;
+                }
+
+                System.out.println("Invalid Student ID! ID must be greater than 0.");
+
+            } catch (InputMismatchException e) {
+
+                System.out.println("Enter numeric ID only.");
+                sc.nextLine();
+            }
+        }
+
+        int bookId;
+
+        while (true) {
+
+            System.out.print("Enter Book ID: ");
+
+            try {
+
+                bookId = sc.nextInt();
+                sc.nextLine();
+
+                if (ValidationUtil.isValidId(bookId)) {
+                    break;
+                }
+
+                System.out.println("Invalid Book ID! ID must be greater than 0.");
+
+            } catch (InputMismatchException e) {
+
+                System.out.println("Enter numeric ID only.");
+                sc.nextLine();
+            }
+        }
+
+        try {
+
+            String result = issueService.issueBook(studentId, bookId);
+            System.out.println(result);
+
+        } catch (StudentNotFoundException |
+                 BookNotFoundException |
+                 BookNotAvailableException e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+}
