@@ -1,0 +1,53 @@
+package menu;
+
+import exception.BookNotFoundException;
+import service.IssueService;
+import util.ValidationUtil;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class ReturnMenu {
+
+    private final Scanner sc = new Scanner(System.in);
+    private final IssueService issueService = new IssueService();
+
+    public void showMenu() {
+
+        System.out.println("\n========== RETURN BOOK ==========");
+
+        int issueId;
+
+        while (true) {
+
+            System.out.print("Enter Issue ID: ");
+
+            try {
+
+                issueId = sc.nextInt();
+                sc.nextLine();
+
+                if (ValidationUtil.isValidId(issueId)) {
+                    break;
+                }
+
+                System.out.println("Invalid Issue ID! ID must be greater than 0.");
+
+            } catch (InputMismatchException e) {
+
+                System.out.println("Enter numeric ID only.");
+                sc.nextLine();
+            }
+        }
+
+        try {
+
+            String result = issueService.returnBook(issueId);
+            System.out.println("\n" + result);
+
+        } catch (BookNotFoundException e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+}
